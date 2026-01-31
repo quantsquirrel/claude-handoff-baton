@@ -344,119 +344,23 @@ Every handoff creates a markdown file at `.claude/handoffs/{date}-{time}-{topic}
 ```markdown
 # Session Handoff: User Authentication Migration
 
-**Date:** January 31, 2026 10:34 AM
-**Session ID:** sess_2026_01_31_103456
-**Branch:** feature/auth-migration
-**Duration:** 4h 32m
+**Date:** January 31, 2026 | **Branch:** feature/auth-migration | **Progress:** 65%
 
----
+## Key Decisions
+- ✅ Auth0 over custom JWT (reduces maintenance, improves security)
+- ✅ Batch migration during off-peak hours (2-4 AM EST)
 
-## Context Summary
-
-### Current Objective
-Migrate user authentication from custom JWT to Auth0, including database schema updates and frontend integration.
-
-### Project Status
-- Overall Progress: 65% complete
-- Last Working State: Login form UI complete, backend integration in progress
-- Critical Issue: None
-- Deployment Blocked: No
-
----
-
-## Technical Details
-
-### Git Status
-**Branch:** feature/auth-migration (ahead of main by 12 commits)
-
-**Recent Commits:**
-```
-2026-01-31 10:15 - docs: update authentication flow diagrams
-2026-01-30 16:42 - feat: add Auth0 configuration module
-2026-01-30 14:21 - test: add Auth0 provider integration tests
-```
-
-**Active Tasks:**
-- `[in_progress]` Implement Auth0 user sync endpoint
-- `[in_progress]` Update database schema for Auth0 user IDs
-- `[pending]` Integration testing with staging Auth0 tenant
-
----
-
-## Key Decisions Made
-
-1. **Decision:** Use Auth0 instead of custom JWT implementation
-   - **Rationale:** Reduces maintenance burden, improves security posture
-   - **Trade-off:** Adds external dependency, increases monthly costs
-   - **Date:** January 25, 2026
-
-2. **Decision:** Migrate user data during off-peak hours
-   - **Rationale:** Minimal impact on active users
-   - **Implementation:** Scheduled migration for 2:00-4:00 AM EST
-   - **Date:** January 29, 2026
-
----
-
-## Failed Approaches & Learnings
-
-### Attempt 1: Direct Database Migration
-**What:** Migrating all user records in single transaction
-**Why it failed:** Locked database for 2+ hours, caused production outage
-**Lesson:** Always test with production-scale data
-**Better approach:** Use batched async migration with transaction checkpoints
-
-### Attempt 2: Client-Side Token Refresh
-**What:** Implementing token refresh logic in React components
-**Why it failed:** Race conditions when multiple components refresh simultaneously
-**Lesson:** Centralize token management
-**Better approach:** Single source of truth in custom hook with mutex pattern
-
----
+## Failed Approaches (Don't Repeat!)
+- ❌ Single DB transaction → Use batched async migration
+- ❌ Client-side token refresh → Centralize in custom hook
 
 ## Next Steps
-
-### Immediate (Next 2 hours)
-1. Complete Auth0 provider initialization
-2. Add unit tests for token refresh logic
-3. Deploy to staging environment
-
-### Short-term (Next 24 hours)
-1. Run integration tests against Auth0 sandbox
-2. Load test with 100 concurrent users
-3. Security audit of authentication flow
-
----
-
-## Compressed Handoff Prompt
-
+1. Complete Auth0 provider init
+2. Add token refresh tests
+3. Deploy to staging
 ```
-HANDOFF: User Authentication Migration
-SESSION: sess_2026_01_31_103456
-STATUS: 65% complete on feature/auth-migration
-PROGRESS: Auth0 provider module complete, testing phase starting
 
-CONTEXT:
-- Migrating from custom JWT to Auth0
-- Database schema updates ready for review
-- 12 commits since yesterday's session
-
-BLOCKERS:
-- Waiting on Auth0 tenant config (DevOps)
-- Database migration script in code review
-
-NEXT:
-1. Auth0 provider initialization (IN PROGRESS)
-2. Integration testing (TODAY)
-3. Staging deployment (TOMORROW)
-
-KEY FILES:
-- src/auth/auth0-provider.ts (modified)
-- src/config/environment.ts (modified)
-- tests/auth0.test.ts (new)
-
-PREVIOUS SESSION: sess_2026_01_30_145632
-```
-```
+> 📄 **Full example:** See [examples/example-handoff.md](examples/example-handoff.md) for a complete handoff document with all sections.
 
 ### Compressed Clipboard Format
 
