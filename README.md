@@ -22,6 +22,7 @@
 - [Installation](#installation)
 - [Usage](#usage)
 - [Output Format](#output-format)
+- [Auto-Handoff Hook](#auto-handoff-hook)
 - [Comparison](#comparison-with-alternatives)
 - [Configuration](#configuration)
 - [Advanced Usage](#advanced-usage)
@@ -79,6 +80,7 @@ Session 1          /handoff           Session 2
 | ⭐ **Quality Score** | Validates completeness with detailed scoring (0-100) |
 | 🇰🇷 **Korean Support** | Unique clipboard prompt with Korean labels and context |
 | ✅ **TODO Integration** | Auto-includes pending and in-progress tasks from .claude/ |
+| 🔔 **Auto-Handoff Hook** | Suggests `/handoff` when context reaches 70% (optional) |
 
 ### Quality Score Breakdown
 
@@ -426,6 +428,95 @@ The skill automatically copies a compact version to your clipboard:
 
 ---
 
+## Auto-Handoff Hook
+
+**Never forget to create a handoff.** The auto-handoff hook monitors your context usage and suggests running `/handoff` before it's too late.
+
+### How It Works
+
+```
+Context Usage    Action
+─────────────────────────────────────
+   0-69%         Normal operation
+  70-79%         📋 Suggestion appears
+  80-89%         ⚠️ Warning - recommended
+  90%+           🚨 Urgent - create now
+```
+
+### Installation
+
+```bash
+# From the handoff directory
+cd ~/.claude/skills/handoff
+bash hooks/install.sh
+```
+
+Or manually add to `~/.claude/settings.json`:
+
+```json
+{
+  "hooks": {
+    "PostToolUse": [{
+      "matcher": "Read|Grep|Glob|Bash|WebFetch",
+      "hooks": [{
+        "type": "command",
+        "command": "node ~/.claude/skills/handoff/hooks/auto-handoff.mjs"
+      }]
+    }]
+  }
+}
+```
+
+### Features
+
+| Feature | Description |
+|---------|-------------|
+| 🎯 **Smart Detection** | Only triggers on large-output tools (Read, Grep, Bash, etc.) |
+| ⏱️ **Cooldown** | 3-minute cooldown between suggestions to avoid spam |
+| 🔄 **Session Aware** | Tracks per-session usage, resets on new sessions |
+| 📁 **Handoff Detection** | Skips suggestion if handoff created within 5 minutes |
+| 🎚️ **Graduated Warnings** | Different messages at 70%, 80%, 90% thresholds |
+
+### Messages
+
+**At 70% (Suggestion):**
+```
+📋 HANDOFF SUGGESTION - Context 70%+ Reached
+
+Your context usage is getting high. Consider creating a handoff:
+  /handoff "current-task-topic"
+```
+
+**At 80% (Warning):**
+```
+⚠️ HANDOFF RECOMMENDED - Context 80%+ Reached
+
+Context space is running low. Strongly recommended to create a handoff now.
+```
+
+**At 90% (Urgent):**
+```
+🚨 HANDOFF URGENT - Context 90%+ Reached
+
+Context is almost full. Create a handoff immediately!
+```
+
+### Debug Mode
+
+Enable debug logging:
+
+```bash
+AUTO_HANDOFF_DEBUG=1 claude
+```
+
+Logs saved to: `/tmp/auto-handoff-debug.log`
+
+### Uninstallation
+
+Remove the `PostToolUse` hook entry from `~/.claude/settings.json`.
+
+---
+
 ## Comparison with Alternatives
 
 ### Why Handoff Stands Out
@@ -441,6 +532,7 @@ The skill automatically copies a compact version to your clipboard:
 | Handoff Chain | ⛓️ **Link prev/next** | ❌ | ❌ | ❌ |
 | Secret Detection | 🔐 **With warnings** | ❌ | ❌ | ❌ |
 | Quality Score | ⭐ **Detailed 0-100** | ❌ | ⚠️ Simple | ❌ |
+| Auto-Handoff Hook | 🔔 **Context monitor** | ❌ | ❌ | ❌ |
 | Session Metadata | ✅ Comprehensive | ⚠️ Minimal | ✅ Good | ⚠️ Minimal |
 
 ### Unique to Handoff
@@ -450,6 +542,7 @@ The skill automatically copies a compact version to your clipboard:
 - ⛓️ Session chain linking
 - 🔐 Secret detection & warnings
 - ⭐ Quality scoring (0-100)
+- 🔔 Auto-handoff hook (context monitoring)
 
 ---
 
@@ -770,6 +863,23 @@ See [LICENSE](LICENSE) file for details.
 | ⭐ **품질 점수** | Handoff 완성도를 0-100 점수로 검증 |
 | 🇰🇷 **한국어 지원** | 한국어 라벨과 컨텍스트를 포함한 클립보드 프롬프트 |
 | ✅ **TODO 통합** | .claude/tasks.json의 작업 자동 포함 |
+| 🔔 **자동 핸드오프 훅** | 컨텍스트 70% 도달 시 `/handoff` 권유 (선택) |
+
+### 자동 핸드오프 훅
+
+컨텍스트 사용량을 모니터링하고 70%에 도달하면 핸드오프 생성을 권유합니다.
+
+```bash
+# 설치
+cd ~/.claude/skills/handoff
+bash hooks/install.sh
+```
+
+| 사용량 | 동작 |
+|--------|------|
+| 70-79% | 📋 제안 표시 |
+| 80-89% | ⚠️ 경고 - 권장 |
+| 90%+ | 🚨 긴급 - 즉시 생성 |
 
 ### 설치
 
@@ -928,6 +1038,16 @@ sudo apt-get install xclip
 ---
 
 ## Changelog
+
+### v1.1.0 (January 31, 2026)
+
+**Auto-Handoff Hook**
+
+- 🔔 New: Auto-handoff hook monitors context usage
+- 📊 Graduated warnings at 70%, 80%, 90% thresholds
+- ⏱️ 3-minute cooldown between suggestions
+- 📁 Smart detection skips if handoff recently created
+- 🔧 Easy installation via `hooks/install.sh`
 
 ### v1.0.0 (January 31, 2026)
 
