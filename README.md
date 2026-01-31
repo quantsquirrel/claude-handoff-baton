@@ -10,7 +10,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-compatible-success?style=flat-square)](https://github.com/anthropics/claude-code)
-[![Version](https://img.shields.io/badge/version-1.2.0-blue?style=flat-square)](https://github.com/quantsquirrel/claude-code-handoff)
+[![Version](https://img.shields.io/badge/version-1.2.0-blue?style=flat-square)](https://github.com/quantsquirrel/claude-handoff)
 
 **Master context continuity across sessions.**
 
@@ -22,7 +22,7 @@
 
 ```bash
 # 1. Install
-/plugin install quantsquirrel/claude-code-handoff
+/plugin install quantsquirrel/claude-handoff
 
 # 2. Use
 /handoff
@@ -118,7 +118,7 @@ Quality validation ensures your handoff is complete:
 ## Project Structure
 
 ```sh
-└── claude-code-handoff/
+└── claude-handoff/
     ├── LICENSE
     ├── README.md
     ├── SKILL.md              # Skill definition for Claude Code
@@ -141,7 +141,7 @@ Quality validation ensures your handoff is complete:
 ### Recommended: Plugin Marketplace (Easiest)
 
 ```bash
-/plugin marketplace add quantsquirrel/claude-code-handoff
+/plugin marketplace add quantsquirrel/claude-handoff
 ```
 
 This automatically:
@@ -153,14 +153,14 @@ This automatically:
 ### Alternative: Direct Install
 
 ```bash
-/plugin install quantsquirrel/claude-code-handoff
+/plugin install quantsquirrel/claude-handoff
 ```
 
 ### Manual Installation
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/quantsquirrel/claude-code-handoff.git ~/.claude/skills/handoff
+git clone https://github.com/quantsquirrel/claude-handoff.git ~/.claude/skills/handoff
 ```
 
 2. Install dependencies:
@@ -732,7 +732,7 @@ We welcome contributions! Please follow these guidelines:
 ### Development Setup
 
 ```bash
-git clone https://github.com/quantsquirrel/claude-code-handoff.git
+git clone https://github.com/quantsquirrel/claude-handoff.git
 cd handoff
 npm install
 npm run dev
@@ -769,7 +769,7 @@ npm run test:all
 
 ### Report Issues
 
-Found a bug? [Open an issue](https://github.com/quantsquirrel/claude-code-handoff/issues) with:
+Found a bug? [Open an issue](https://github.com/quantsquirrel/claude-handoff/issues) with:
 - Clear description of the problem
 - Steps to reproduce
 - Expected vs actual behavior
@@ -801,12 +801,12 @@ See [LICENSE](LICENSE) file for details.
 - Examples: See [examples](./examples) directory
 
 **Community**
-- Issues: [GitHub Issues](https://github.com/quantsquirrel/claude-code-handoff/issues)
-- Discussions: [GitHub Discussions](https://github.com/quantsquirrel/claude-code-handoff/discussions)
+- Issues: [GitHub Issues](https://github.com/quantsquirrel/claude-handoff/issues)
+- Discussions: [GitHub Discussions](https://github.com/quantsquirrel/claude-handoff/discussions)
 
 **If you use Handoff, consider giving it a star on GitHub:**
 
-⭐ github.com/quantsquirrel/claude-code-handoff
+⭐ github.com/quantsquirrel/claude-handoff
 
 ---
 
@@ -873,9 +873,9 @@ Special thanks to the Claude Code community for feedback and feature suggestions
 
 **🏃 Ready to pass the baton?** Run `/handoff` and keep the momentum going!
 
-Made by [QuantSquirrel](https://github.com/quantsquirrel) | [Report Issue](https://github.com/quantsquirrel/claude-code-handoff/issues) | [Contribute](https://github.com/quantsquirrel/claude-code-handoff/blob/main/CONTRIBUTING.md)
+Made by [QuantSquirrel](https://github.com/quantsquirrel) | [Report Issue](https://github.com/quantsquirrel/claude-handoff/issues) | [Contribute](https://github.com/quantsquirrel/claude-handoff/blob/main/CONTRIBUTING.md)
 
-⭐ **Star us on GitHub:** [claude-code-handoff](https://github.com/quantsquirrel/claude-code-handoff)
+⭐ **Star us on GitHub:** [claude-handoff](https://github.com/quantsquirrel/claude-handoff)
 
 <div align="right">
 

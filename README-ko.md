@@ -10,7 +10,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-compatible-success?style=flat-square)](https://github.com/anthropics/claude-code)
-[![Version](https://img.shields.io/badge/version-1.2.0-blue?style=flat-square)](https://github.com/quantsquirrel/claude-code-handoff)
+[![Version](https://img.shields.io/badge/version-1.2.0-blue?style=flat-square)](https://github.com/quantsquirrel/claude-handoff)
 
 **세션 간 컨텍스트 연속성을 마스터하세요.**
 
@@ -22,7 +22,7 @@
 
 ```bash
 # 1. 설치
-/plugin install quantsquirrel/claude-code-handoff
+/plugin install quantsquirrel/claude-handoff
 
 # 2. 사용
 /handoff
@@ -83,19 +83,19 @@
 
 **추천 방법: 플러그인 마켓플레이스**
 ```bash
-/plugin marketplace add quantsquirrel/claude-code-handoff
+/plugin marketplace add quantsquirrel/claude-handoff
 ```
 
 ✅ 가장 쉬움 • ✅ 자동 검증 • ✅ 공식 소스
 
 **직접 설치**
 ```bash
-/plugin install quantsquirrel/claude-code-handoff
+/plugin install quantsquirrel/claude-handoff
 ```
 
 **수동 설치**
 ```bash
-git clone https://github.com/quantsquirrel/claude-code-handoff.git ~/.claude/skills/handoff
+git clone https://github.com/quantsquirrel/claude-handoff.git ~/.claude/skills/handoff
 cd ~/.claude/skills/handoff
 npm install
 ```
@@ -254,7 +254,7 @@ sudo apt-get install xclip
 ### 개발 설정
 
 ```bash
-git clone https://github.com/quantsquirrel/claude-code-handoff.git
+git clone https://github.com/quantsquirrel/claude-handoff.git
 cd handoff
 npm install
 npm run dev
@@ -262,7 +262,7 @@ npm run dev
 
 ### 이슈 제출
 
-[GitHub Issues에서 제출하기](https://github.com/quantsquirrel/claude-code-handoff/issues)
+[GitHub Issues에서 제출하기](https://github.com/quantsquirrel/claude-handoff/issues)
 
 ---
 
@@ -283,15 +283,15 @@ Copyright © 2026 Handoff Contributors
 - 예시: [examples](./examples) 디렉토리 참조
 
 **커뮤니티**
-- 이슈: [GitHub Issues](https://github.com/quantsquirrel/claude-code-handoff/issues)
-- 토론: [GitHub Discussions](https://github.com/quantsquirrel/claude-code-handoff/discussions)
+- 이슈: [GitHub Issues](https://github.com/quantsquirrel/claude-handoff/issues)
+- 토론: [GitHub Discussions](https://github.com/quantsquirrel/claude-handoff/discussions)
 
 ---
 
 **🏃 바톤을 전달할 준비가 되셨나요?** `/handoff`를 실행하고 모멘텀을 유지하세요!
 
-Made by [QuantSquirrel](https://github.com/quantsquirrel) | [이슈 제출](https://github.com/quantsquirrel/claude-code-handoff/issues)
+Made by [QuantSquirrel](https://github.com/quantsquirrel) | [이슈 제출](https://github.com/quantsquirrel/claude-handoff/issues)
 
-⭐ **GitHub에서 스타를 눌러주세요:** [claude-code-handoff](https://github.com/quantsquirrel/claude-code-handoff)
+⭐ **GitHub에서 스타를 눌러주세요:** [claude-handoff](https://github.com/quantsquirrel/claude-handoff)
 
 <div align="right"><a href="#top">⬆️ 맨 위로</a></div>
