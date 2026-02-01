@@ -79,23 +79,22 @@
 
 ## 설치
 
-**추천 방법: 플러그인 마켓플레이스**
+**스킬 파일을 commands 폴더에 복사:**
+
 ```bash
-/plugin marketplace add quantsquirrel/claude-handoff
+curl -o ~/.claude/commands/handoff.md \
+  https://raw.githubusercontent.com/quantsquirrel/claude-handoff/main/SKILL.md
 ```
 
-✅ 가장 쉬움 • ✅ 자동 검증 • ✅ 공식 소스
+**끝.** `/handoff` 명령어를 사용할 수 있습니다.
 
-**직접 설치**
-```bash
-/plugin install quantsquirrel/claude-handoff
-```
+### 선택: 자동 핸드오프 훅
 
-**수동 설치**
+컨텍스트 70% 도달 시 알림 받기:
+
 ```bash
 git clone https://github.com/quantsquirrel/claude-handoff.git ~/.claude/skills/handoff
-cd ~/.claude/skills/handoff
-npm install
+cd ~/.claude/skills/handoff && bash hooks/install.sh
 ```
 
 ---

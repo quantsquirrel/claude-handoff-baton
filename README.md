@@ -19,10 +19,11 @@
 ## Quick Start
 
 ```bash
-# 1. Install
-/plugin install quantsquirrel/claude-handoff
+# Install (one-time)
+curl -o ~/.claude/commands/handoff.md \
+  https://raw.githubusercontent.com/quantsquirrel/claude-handoff/main/SKILL.md
 
-# 2. Use
+# Use
 /handoff
 ```
 
@@ -135,58 +136,25 @@ Quality validation ensures your handoff is complete:
 
 ## Installation
 
-### Recommended: Plugin Marketplace (Easiest)
+**Copy the skill file to your commands folder:**
 
 ```bash
-/plugin marketplace add quantsquirrel/claude-handoff
+curl -o ~/.claude/commands/handoff.md \
+  https://raw.githubusercontent.com/quantsquirrel/claude-handoff/main/SKILL.md
 ```
 
-This automatically:
-- Downloads the plugin from the official marketplace
-- Places it in `~/.claude/skills/handoff`
-- Registers the `/handoff` command
-- Validates installation
+**Done.** The `/handoff` command is now available.
 
-### Alternative: Direct Install
+### Optional: Auto-Handoff Hook
+
+Get notified when context reaches 70%:
 
 ```bash
-/plugin install quantsquirrel/claude-handoff
-```
-
-### Manual Installation
-
-1. Clone the repository:
-```bash
+# Clone for hook files
 git clone https://github.com/quantsquirrel/claude-handoff.git ~/.claude/skills/handoff
-```
 
-2. Install dependencies:
-```bash
-cd ~/.claude/skills/handoff
-npm install
-```
-
-3. Enable the skill in your Claude Code config:
-```json
-{
-  "skills": {
-    "handoff": {
-      "enabled": true,
-      "version": "1.0.0"
-    }
-  }
-}
-```
-
-### Verification
-
-```bash
-/plugin list | grep handoff
-```
-
-**Expected output:**
-```
-✅ handoff (v1.0.0) - Session handoff and context transfer
+# Install the hook
+cd ~/.claude/skills/handoff && bash hooks/install.sh
 ```
 
 ---
