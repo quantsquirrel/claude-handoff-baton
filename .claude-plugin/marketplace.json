@@ -10,7 +10,7 @@
     {
       "name": "handoff",
       "description": "Session context handoff with fast/slow modes",
-      "source": "../SKILL.md",
+      "source": "./plugins/handoff",
       "version": "2.0.0",
       "author": {
         "name": "quantsquirrel"

@@ -1,0 +1,15 @@
+{
+  "name": "handoff",
+  "version": "2.0.0",
+  "description": "Session context handoff with fast/slow modes",
+  "author": {
+    "name": "quantsquirrel"
+  },
+  "commands": [
+    {
+      "name": "handoff",
+      "description": "Save session context to clipboard",
+      "source": "./SKILL.md"
+    }
+  ]
+}
