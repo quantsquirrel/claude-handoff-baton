@@ -18,12 +18,23 @@
 
 ## Quick Start
 
+### Option 1: Marketplace (Recommended - Auto-updates)
+
 ```bash
-# Install (one-time)
+/plugin marketplace add quantsquirrel/claude-handoff
+/plugin install handoff@quantsquirrel
+```
+
+### Option 2: Manual Install
+
+```bash
 curl -o ~/.claude/commands/handoff.md \
   https://raw.githubusercontent.com/quantsquirrel/claude-handoff/main/SKILL.md
+```
 
-# Use
+### Use
+
+```bash
 /handoff
 ```
 

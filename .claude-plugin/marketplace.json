@@ -1,0 +1,15 @@
+{
+  "name": "handoff",
+  "version": "2.0.0",
+  "description": "Pass the baton between sessions. Save context before autocompact, restore with clipboard paste.",
+  "author": "quantsquirrel",
+  "repository": "https://github.com/quantsquirrel/claude-handoff",
+  "plugins": [
+    {
+      "name": "handoff",
+      "description": "Session context handoff with fast/slow modes",
+      "source": "../SKILL.md",
+      "type": "command"
+    }
+  ]
+}
