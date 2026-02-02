@@ -11,6 +11,7 @@
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-compatible-success?style=flat-square)](https://github.com/anthropics/claude-code)
 [![Version](https://img.shields.io/badge/version-2.0.0-blue?style=flat-square)](https://github.com/quantsquirrel/claude-handoff)
+[![Task Size Detection](https://img.shields.io/badge/Task%20Size-Dynamic-orange?style=flat-square)](https://github.com/quantsquirrel/claude-handoff)
 
 </div>
 
@@ -106,6 +107,36 @@ Session 1 → /handoff → Cmd+V → Session 2
 
 ---
 
+## Task Size Detection (v2.0)
+
+Handoff now intelligently detects task complexity and adjusts handoff timing accordingly.
+
+### How It Works
+
+1. **Prompt Analysis**
+   - Scans your request for keywords like "전체", "리팩토링", "migrate", "entire"
+   - Classifies task as Small / Medium / Large / XLarge
+
+2. **File Count Detection**
+   - Counts files from Glob/Grep results
+   - Automatically upgrades task size when many files involved
+
+3. **Dynamic Thresholds**
+   - Suggests handoff earlier for complex tasks
+   - Prevents context overflow on large refactors
+
+### Example
+
+```
+You: "Refactor all authentication and migrate entire user database"
+
+🔍 Large task detected - handoff will trigger at 50% (vs. 85% for small tasks)
+```
+
+This means you'll be prompted to create a handoff earlier, reducing the risk of losing progress.
+
+---
+
 ## Security
 
 Sensitive data is auto-detected and redacted:
@@ -131,17 +162,47 @@ Wait for user instructions.
 
 ---
 
-## Optional: Auto-Handoff Hook
+## Optional: Auto-Handoff Hook (v2.0)
 
-Get notified when context reaches 70%:
+**New in v2.0:** Dynamic thresholds based on task size!
+
+### Features
+
+1. **Task Size Detection (PrePromptSubmit)**
+   - Analyzes your prompt for large task indicators
+   - Provides proactive warnings before starting large tasks
+   - Dynamically adjusts handoff thresholds
+
+2. **Smart Context Monitoring (PostToolUse)**
+   - Tracks context usage across tools
+   - Suggests `/handoff` at optimal times based on task complexity:
+     - **Small tasks**: 85% / 90% / 95%
+     - **Medium tasks**: 70% / 80% / 90%
+     - **Large tasks**: 50% / 60% / 70%
+     - **XLarge tasks**: 30% / 40% / 50%
+
+3. **File Count Detection**
+   - Automatically upgrades task size when many files are involved
+   - 10+ files → Medium, 50+ files → Large, 200+ files → XLarge
+
+### Installation
 
 ```bash
 # Clone for hook files
 git clone https://github.com/quantsquirrel/claude-handoff.git ~/.claude/skills/handoff
 
-# Install the hook
+# Install both hooks
 cd ~/.claude/skills/handoff && bash hooks/install.sh
 ```
+
+The installer will register:
+- **PrePromptSubmit hook**: Task size estimator
+- **PostToolUse hook**: Context monitor with dynamic thresholds
+
+### Limitations
+
+- **Single-node only**: The file locking mechanism uses local filesystem
+  locks and is not designed for distributed deployments.
 
 ---
 
@@ -149,11 +210,14 @@ cd ~/.claude/skills/handoff && bash hooks/install.sh
 
 ```
 claude-handoff/
-├── SKILL.md              # The skill (copy this to ~/.claude/commands/)
+├── SKILL.md                    # The skill (copy this to ~/.claude/commands/)
 ├── README.md
 ├── hooks/
-│   ├── auto-handoff.mjs  # Context monitoring hook
-│   └── install.sh        # Easy installation
+│   ├── constants.mjs           # Shared constants and thresholds
+│   ├── task-size-estimator.mjs # PrePromptSubmit: Task size detection
+│   ├── auto-handoff.mjs        # PostToolUse: Context monitoring (v2.0)
+│   ├── install.sh              # Easy installation (registers both hooks)
+│   └── test-task-size.mjs      # Integration tests
 └── examples/
     └── example-handoff.md
 ```

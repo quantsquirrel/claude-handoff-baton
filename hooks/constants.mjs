@@ -109,3 +109,52 @@ export const DRAFT_FILE_PREFIX = '.draft-';
  * Lock file name
  */
 export const LOCK_FILE_NAME = '.generating.lock';
+
+// ==========================================
+// Task Size Classification (v2.0)
+// ==========================================
+
+/**
+ * Task size categories
+ */
+export const TASK_SIZE = {
+  SMALL: 'small',
+  MEDIUM: 'medium',
+  LARGE: 'large',
+  XLARGE: 'xlarge',
+};
+
+/**
+ * Keywords indicating large tasks
+ */
+export const LARGE_TASK_KEYWORDS = [
+  '전체', '모든', 'all', 'every',
+  '리팩토링', 'refactor', 'refactoring',
+  '마이그레이션', 'migrate', 'migration',
+  'autopilot', 'ultrawork', 'ralph',
+  '대규모', 'massive', 'entire',
+];
+
+/**
+ * Dynamic thresholds per task size
+ */
+export const TASK_SIZE_THRESHOLDS = {
+  [TASK_SIZE.SMALL]: { handoff: 0.85, warning: 0.90, critical: 0.95 },
+  [TASK_SIZE.MEDIUM]: { handoff: 0.70, warning: 0.80, critical: 0.90 },
+  [TASK_SIZE.LARGE]: { handoff: 0.50, warning: 0.60, critical: 0.70 },
+  [TASK_SIZE.XLARGE]: { handoff: 0.30, warning: 0.40, critical: 0.50 },
+};
+
+/**
+ * File count thresholds for task size upgrade
+ */
+export const FILE_COUNT_THRESHOLDS = {
+  MEDIUM: 10,   // 10+ files
+  LARGE: 50,    // 50+ files
+  XLARGE: 200,  // 200+ files
+};
+
+/**
+ * Task size state file
+ */
+export const TASK_SIZE_STATE_FILE = 'task-size-state.json';

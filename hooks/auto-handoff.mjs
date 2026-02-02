@@ -37,11 +37,20 @@ import {
   HANDOFF_CRITICAL_MESSAGE,
   AUTO_DRAFT_ENABLED,
   DRAFT_FILE_PREFIX,
+  // Task size imports (v2.0)
+  TASK_SIZE,
+  TASK_SIZE_THRESHOLDS,
+  FILE_COUNT_THRESHOLDS,
+  TASK_SIZE_STATE_FILE,
 } from './constants.mjs';
 
 const DEBUG = process.env.AUTO_HANDOFF_DEBUG === '1';
 const STATE_FILE = path.join(tmpdir(), 'auto-handoff-state.json');
 const DEBUG_FILE = path.join(tmpdir(), 'auto-handoff-debug.log');
+
+// Task size state file (shared with task-size-estimator.mjs)
+const TASK_SIZE_STATE_PATH = path.join(tmpdir(), TASK_SIZE_STATE_FILE);
+const LOCK_TIMEOUT_MS = 5000;
 
 /**
  * Debug logging
@@ -81,6 +90,130 @@ function saveState(state) {
   } catch (e) {
     debugLog('Failed to save state:', e.message);
   }
+}
+
+/**
+ * Acquire file lock with timeout
+ */
+function acquireLock(lockFile, timeout = LOCK_TIMEOUT_MS) {
+  const startTime = Date.now();
+
+  while (Date.now() - startTime < timeout) {
+    try {
+      fs.writeFileSync(lockFile, String(process.pid), { flag: 'wx', mode: 0o600 });
+      return true;
+    } catch (e) {
+      if (e.code === 'EEXIST') {
+        try {
+          const stat = fs.statSync(lockFile);
+          if (Date.now() - stat.mtimeMs > timeout) {
+            fs.unlinkSync(lockFile);
+            continue;
+          }
+        } catch (statErr) {
+          continue;
+        }
+        const waitStart = Date.now();
+        while (Date.now() - waitStart < 50) { /* busy wait */ }
+      } else {
+        return false;
+      }
+    }
+  }
+  return false;
+}
+
+/**
+ * Release file lock
+ */
+function releaseLock(lockFile) {
+  try {
+    fs.unlinkSync(lockFile);
+  } catch (e) {
+    // Ignore
+  }
+}
+
+/**
+ * Load task size state for session
+ */
+function loadTaskSizeState(sessionId) {
+  try {
+    if (fs.existsSync(TASK_SIZE_STATE_PATH)) {
+      const data = JSON.parse(fs.readFileSync(TASK_SIZE_STATE_PATH, 'utf8'));
+      return data[sessionId] || { taskSize: TASK_SIZE.MEDIUM };
+    }
+  } catch (e) {
+    debugLog('Failed to load task size state:', e.message);
+  }
+  return { taskSize: TASK_SIZE.MEDIUM };
+}
+
+/**
+ * Save updated task size state with lock
+ */
+function saveTaskSizeState(sessionId, taskSize) {
+  const lockFile = TASK_SIZE_STATE_PATH + '.lock';
+
+  if (!acquireLock(lockFile)) {
+    debugLog('Failed to acquire lock for task size state');
+    return;
+  }
+
+  try {
+    let state = {};
+    try {
+      if (fs.existsSync(TASK_SIZE_STATE_PATH)) {
+        state = JSON.parse(fs.readFileSync(TASK_SIZE_STATE_PATH, 'utf8'));
+      }
+    } catch (e) {
+      // Start fresh
+    }
+
+    state[sessionId] = {
+      ...(state[sessionId] || {}),
+      taskSize,
+      updatedAt: Date.now(),
+    };
+
+    const tempFile = TASK_SIZE_STATE_PATH + '.tmp';
+    fs.writeFileSync(tempFile, JSON.stringify(state, null, 2), { mode: 0o600 });
+    fs.renameSync(tempFile, TASK_SIZE_STATE_PATH);
+  } finally {
+    releaseLock(lockFile);
+  }
+}
+
+/**
+ * Analyze Glob/Grep tool result for file count
+ */
+function analyzeToolResult(toolName, toolInput, toolResponse) {
+  const toolLower = toolName.toLowerCase();
+
+  if (toolLower === 'glob' || toolLower === 'grep') {
+    // Count file matches (one file per line)
+    const lines = toolResponse.split('\n').filter(l => l.trim());
+    return { fileCount: lines.length };
+  }
+
+  return { fileCount: 0 };
+}
+
+/**
+ * Upgrade task size based on file count
+ */
+function upgradeTaskSize(currentSize, fileCount) {
+  if (fileCount >= FILE_COUNT_THRESHOLDS.XLARGE) return TASK_SIZE.XLARGE;
+  if (fileCount >= FILE_COUNT_THRESHOLDS.LARGE) return TASK_SIZE.LARGE;
+  if (fileCount >= FILE_COUNT_THRESHOLDS.MEDIUM) return TASK_SIZE.MEDIUM;
+  return currentSize;
+}
+
+/**
+ * Get thresholds for task size
+ */
+function getThresholds(taskSize) {
+  return TASK_SIZE_THRESHOLDS[taskSize] || TASK_SIZE_THRESHOLDS[TASK_SIZE.MEDIUM];
 }
 
 /**
@@ -234,7 +367,7 @@ function main() {
     return;
   }
 
-  const { tool_name, session_id, tool_response } = hookData;
+  const { tool_name, session_id, tool_response, tool_input } = hookData;
 
   if (!tool_response || !session_id) {
     return;
@@ -264,6 +397,29 @@ function main() {
   // Calculate usage ratio
   const usageRatio = sessionState.estimatedTokens / CLAUDE_CONTEXT_LIMIT;
 
+  // === Task Size Dynamic Thresholds (v2.0) ===
+  // Load task size from PrePromptSubmit hook or default
+  const taskSizeState = loadTaskSizeState(session_id);
+  let currentTaskSize = taskSizeState.taskSize;
+
+  // Analyze Glob/Grep results for file count
+  const toolAnalysis = analyzeToolResult(tool_name, tool_input, tool_response);
+
+  // Upgrade task size if many files found
+  if (toolAnalysis.fileCount > 0) {
+    const upgradedSize = upgradeTaskSize(currentTaskSize, toolAnalysis.fileCount);
+    if (upgradedSize !== currentTaskSize) {
+      debugLog('Task size upgraded:', currentTaskSize, '->', upgradedSize,
+               'due to', toolAnalysis.fileCount, 'files');
+      currentTaskSize = upgradedSize;
+      saveTaskSizeState(session_id, currentTaskSize);
+    }
+  }
+
+  // Get dynamic thresholds based on task size
+  const dynamicThresholds = getThresholds(currentTaskSize);
+  debugLog('Using thresholds for', currentTaskSize, ':', dynamicThresholds);
+
   // Save auto-draft at 70% threshold
   if (usageRatio >= HANDOFF_THRESHOLD && !sessionState.draftSaved) {
     saveDraft(session_id, sessionState.estimatedTokens);
@@ -271,7 +427,7 @@ function main() {
   }
 
   // Check if below threshold
-  if (usageRatio < HANDOFF_THRESHOLD) {
+  if (usageRatio < dynamicThresholds.handoff) {
     saveState(state);
     return;
   }
@@ -304,14 +460,23 @@ function main() {
   sessionState.suggestionCount++;
   saveState(state);
 
-  // Determine message based on threshold
+  // Determine message based on DYNAMIC threshold
   let message;
-  if (usageRatio >= CRITICAL_THRESHOLD) {
+  if (usageRatio >= dynamicThresholds.critical) {
     message = HANDOFF_CRITICAL_MESSAGE;
-  } else if (usageRatio >= WARNING_THRESHOLD) {
+  } else if (usageRatio >= dynamicThresholds.warning) {
     message = HANDOFF_WARNING_MESSAGE;
-  } else {
+  } else if (usageRatio >= dynamicThresholds.handoff) {
     message = HANDOFF_SUGGESTION_MESSAGE;
+  }
+
+  // Add file count info for large tasks
+  if (toolAnalysis.fileCount >= FILE_COUNT_THRESHOLDS.LARGE && message) {
+    const sizeInfo = `📊 **${toolAnalysis.fileCount}개 파일 발견** - 작업 크기: ${currentTaskSize.toUpperCase()}
+임계값 조정됨: ${Math.round(dynamicThresholds.handoff * 100)}%에서 handoff 권장
+
+`;
+    message = sizeInfo + message;
   }
 
   // Output message as hook result
