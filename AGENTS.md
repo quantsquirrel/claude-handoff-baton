@@ -1,3 +1,5 @@
+<!-- Generated: 2026-02-02 | Updated: 2026-02-02 -->
+
 # AGENTS.md - Handoff Project Guide
 
 **Project:** claude-handoff (Handoff)
