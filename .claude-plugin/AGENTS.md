@@ -27,7 +27,7 @@ Plugin marketplace configuration directory. Contains metadata for registering an
 {
   "name": "handoff",
   "description": "Plugin description for marketplace listing",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "owner": {
     "name": "author-name",
     "email": "contact@example.com"
@@ -37,7 +37,7 @@ Plugin marketplace configuration directory. Contains metadata for registering an
       "name": "plugin-name",
       "description": "Individual plugin description",
       "source": "./plugins/plugin-name",
-      "version": "2.0.0",
+      "version": "2.1.0",
       "author": { "name": "author-name" }
     }
   ]

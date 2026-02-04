@@ -28,7 +28,7 @@ Core handoff plugin implementation for Claude Code. Provides the `/handoff` skil
 ```json
 {
   "name": "handoff",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Session context handoff with fast/slow modes",
   "author": { "name": "quantsquirrel" },
   "commands": "./"
