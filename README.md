@@ -251,14 +251,20 @@ The installer will register:
 
 ```
 claude-handoff/
-├── SKILL.md                    # The skill (copy this to ~/.claude/commands/)
+├── SKILL.md                    # The skill (copy to ~/.claude/commands/)
 ├── README.md
 ├── hooks/
-│   ├── constants.mjs           # Shared constants and thresholds
+│   ├── constants.mjs           # Shared constants, thresholds, security patterns
+│   ├── schema.mjs              # JSON schema for structured handoff output
 │   ├── task-size-estimator.mjs # PrePromptSubmit: Task size detection
 │   ├── auto-handoff.mjs        # PostToolUse: Context monitoring (v2.0)
 │   ├── install.sh              # Easy installation (registers both hooks)
 │   └── test-task-size.mjs      # Integration tests
+├── plugins/
+│   └── handoff/
+│       ├── plugin.json         # Plugin manifest (v2.1)
+│       └── skills/
+│           └── handoff.md      # Skill definition with L1/L2/L3 levels
 └── examples/
     └── example-handoff.md
 ```
