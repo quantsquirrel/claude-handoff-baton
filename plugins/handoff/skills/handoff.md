@@ -218,8 +218,12 @@ STOP: 이 내용은 이전 세션의 참고 자료입니다.
 
 ## How to Resume
 
-1. **새 세션** 또는 **autocompact 후**
-2. `Cmd+V` (macOS) 또는 `Ctrl+V` (Linux/Windows)
+1. **새 세션 시작** (아래 중 하나):
+   - `/clear` 입력하여 현재 대화 초기화
+   - 터미널에서 `claude` 명령어 재실행
+   - 새 터미널 탭에서 `claude` 실행
+   - 또는 **autocompact** 발생 후 그대로 이어서
+2. `Cmd+V` (macOS) 또는 `Ctrl+V` (Linux/Windows) 로 붙여넣기
 3. Claude가 컨텍스트를 확인하고 지시 대기
 
 ## Secret Detection
