@@ -8,7 +8,11 @@
  */
 
 import * as fs from 'fs';
-import { CHARS_PER_TOKEN } from './constants.mjs';
+import { CHARS_PER_TOKEN, SHARED_TOKEN_STATE_FILE } from './constants.mjs';
+import * as path from 'path';
+import { tmpdir } from 'os';
+
+const SHARED_TOKEN_STATE_PATH = path.join(tmpdir(), SHARED_TOKEN_STATE_FILE);
 
 /** Default lock acquisition timeout (ms) */
 export const DEFAULT_LOCK_TIMEOUT_MS = 5000;
@@ -137,4 +141,58 @@ export function createDebugLogger(name, debugFile, envVar) {
       .join(' ')}\n`;
     fs.appendFileSync(debugFile, msg);
   };
+}
+
+/**
+ * Get current cumulative token count for a session (read-only, no lock).
+ *
+ * @param {string} sessionId - Session identifier
+ * @returns {number} Current cumulative estimated token count
+ */
+export function getSharedTokenCount(sessionId) {
+  const state = loadJsonState(SHARED_TOKEN_STATE_PATH);
+  return state[sessionId]?.estimatedTokens || 0;
+}
+
+/**
+ * Track token usage in a shared state file with call-level deduplication.
+ *
+ * Multiple hooks may fire for the same tool call (e.g. Read triggers both
+ * auto-handoff and auto-checkpoint). This function uses a callId fingerprint
+ * (toolName:responseLength) to ensure each call's tokens are counted only once.
+ *
+ * @param {string} sessionId - Session identifier
+ * @param {string} toolName - Name of the tool that produced the response
+ * @param {string} toolResponse - The tool response text
+ * @returns {number} Current cumulative estimated token count for the session
+ */
+export function trackTokenUsage(sessionId, toolName, toolResponse) {
+  const lockFile = SHARED_TOKEN_STATE_PATH + '.lock';
+  const responseTokens = estimateTokens(toolResponse);
+  const callId = `${toolName}:${toolResponse.length}`;
+
+  if (!acquireLock(lockFile)) {
+    // Can't lock - return best-effort estimate from file
+    const state = loadJsonState(SHARED_TOKEN_STATE_PATH);
+    return (state[sessionId]?.estimatedTokens || 0) + responseTokens;
+  }
+
+  try {
+    const state = loadJsonState(SHARED_TOKEN_STATE_PATH);
+    const session = state[sessionId] || { estimatedTokens: 0 };
+
+    // Dedup: skip if this exact call was already counted by another hook
+    if (session.lastCallId !== callId) {
+      session.estimatedTokens += responseTokens;
+      session.lastCallId = callId;
+      session.updatedAt = Date.now();
+    }
+
+    state[sessionId] = session;
+    saveJsonStateAtomic(SHARED_TOKEN_STATE_PATH, state);
+
+    return session.estimatedTokens;
+  } finally {
+    releaseLock(lockFile);
+  }
 }

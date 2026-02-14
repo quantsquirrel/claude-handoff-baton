@@ -49,6 +49,7 @@ import {
   saveJsonStateAtomic,
   estimateTokens,
   createDebugLogger,
+  trackTokenUsage,
 } from './utils.mjs';
 
 const STATE_FILE = path.join(tmpdir(), 'auto-handoff-state.json');
@@ -286,18 +287,17 @@ function main() {
   const state = loadJsonState(STATE_FILE, { sessions: {} });
   const sessionState = getSessionState(state, session_id);
 
-  // Track cumulative tokens
-  const responseTokens = estimateTokens(tool_response);
-  sessionState.estimatedTokens += responseTokens;
+  // Track cumulative tokens (shared with auto-checkpoint, deduped)
+  const cumulativeTokens = trackTokenUsage(session_id, toolLower, tool_response);
 
   debugLog('Tracking output', {
     tool: toolLower,
-    tokens: responseTokens,
-    cumulative: sessionState.estimatedTokens,
+    tokens: estimateTokens(tool_response),
+    cumulative: cumulativeTokens,
   });
 
-  // Calculate usage ratio
-  const usageRatio = sessionState.estimatedTokens / CLAUDE_CONTEXT_LIMIT;
+  // Calculate usage ratio from shared token count
+  const usageRatio = cumulativeTokens / CLAUDE_CONTEXT_LIMIT;
 
   // === Task Size Dynamic Thresholds (v2.0) ===
   // Load task size from PrePromptSubmit hook or default
@@ -324,7 +324,7 @@ function main() {
 
   // Save auto-draft at 70% threshold
   if (usageRatio >= HANDOFF_THRESHOLD && !sessionState.draftSaved) {
-    saveDraft(session_id, sessionState.estimatedTokens);
+    saveDraft(session_id, cumulativeTokens);
     sessionState.draftSaved = true;
   }
 
@@ -360,7 +360,7 @@ function main() {
   // Record suggestion
   sessionState.lastSuggestionTime = now;
   sessionState.suggestionCount++;
-  saveState(state);
+  saveJsonState(STATE_FILE, state);
 
   // Determine message based on DYNAMIC threshold
   let message;

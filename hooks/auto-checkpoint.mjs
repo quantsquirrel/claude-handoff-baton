@@ -36,8 +36,9 @@ import {
 import {
   loadJsonState,
   saveJsonState,
-  estimateTokens,
   createDebugLogger,
+  trackTokenUsage,
+  getSharedTokenCount,
 } from './utils.mjs';
 
 // Configuration
@@ -128,16 +129,15 @@ function main() {
   const state = loadJsonState(STATE_FILE, { sessions: {} });
   const sessionState = getSessionState(state, session_id);
 
-  // Track cumulative tokens if we have tool response
-  if (tool_response) {
-    const responseTokens = estimateTokens(tool_response);
-    sessionState.estimatedTokens += responseTokens;
-  }
+  // Track cumulative tokens (shared with auto-handoff, deduped)
+  const cumulativeTokens = tool_response
+    ? trackTokenUsage(session_id, tool_name, tool_response)
+    : getSharedTokenCount(session_id);
 
   const now = Date.now();
   const timeSinceLastCheckpoint = now - sessionState.lastCheckpointTime;
   const intervalMs = CONFIG.intervalMinutes * 60 * 1000;
-  const usageRatio = sessionState.estimatedTokens / CLAUDE_CONTEXT_LIMIT;
+  const usageRatio = cumulativeTokens / CLAUDE_CONTEXT_LIMIT;
 
   debugLog('Checkpoint check', {
     tool: tool_name,
@@ -177,7 +177,7 @@ function main() {
 
   // Update checkpoint time
   sessionState.lastCheckpointTime = now;
-  saveState(state);
+  saveJsonState(STATE_FILE, state);
 
   // Output checkpoint trigger message
   const message = `\n🔖 자동 체크포인트 트리거 (${reason})\n`;
