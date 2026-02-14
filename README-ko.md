@@ -10,7 +10,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-compatible-success?style=flat-square)](https://github.com/anthropics/claude-code)
-[![Version](https://img.shields.io/badge/version-2.3.0-blue?style=flat-square)](https://github.com/quantsquirrel/claude-handoff-baton)
+[![Version](https://img.shields.io/badge/version-2.4.0-blue?style=flat-square)](https://github.com/quantsquirrel/claude-handoff-baton)
 [![Task Size Detection](https://img.shields.io/badge/Task%20Size-Dynamic-orange?style=flat-square)](https://github.com/quantsquirrel/claude-handoff-baton)
 
 </div>
@@ -272,9 +272,25 @@ v2.3은 원본 컨텍스트를 더 충실하게 보존합니다:
 
 ---
 
-## 자동 핸드오프 훅
+## 자동 핸드오프 훅 (v2.4)
 
-컨텍스트 사용량을 모니터링하고 70%에 도달하면 핸드오프 생성을 권유합니다.
+**v2.4 신규:** 컴팩션 전후 컨텍스트 보존 + 통합 토큰 추적!
+
+### 4개 훅 구성
+
+| 훅 | 파일 | 용도 |
+|----|------|------|
+| **PrePromptSubmit** | `task-size-estimator.mjs` | 프롬프트 키워드로 작업 크기 감지 |
+| **PostToolUse** | `auto-handoff.mjs` | 토큰 사용량 모니터링, 동적 임계값 핸드오프 제안 |
+| **PreCompact** | `pre-compact.mjs` | 컴팩션 전 메타데이터 스냅샷 저장 |
+| **SessionStart** | `session-restore.mjs` | compact/resume 후 최적 컨텍스트 복원 |
+
+### 컨텍스트 보존 (v2.4)
+
+- 통합 토큰 추적: call-level dedup으로 이중 카운트 방지
+- PreCompact가 git 상태, 수정 파일, 토큰 수를 자동 저장
+- SessionStart가 `score = base × freshness + relevance`로 최적 소스 선택
+- 오래된 스냅샷 자동 정리 (최근 3개만 보관)
 
 ```bash
 # 설치
