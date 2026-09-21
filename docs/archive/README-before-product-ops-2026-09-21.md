@@ -4,9 +4,9 @@
 
 <img src="assets/handoff.jpeg" alt="Handoff Baton - Don't pass raw history, pass a baton">
 
-**Pass a reviewable summary, not just raw history.**
+**Don't pass raw history. Pass a baton — distilled, structured, ready to run.**
 
-**English** | **[Guide history](README-ko.md)**
+**English** | **[한국어](README-ko.md)**
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-compatible-success?style=flat-square)](https://github.com/anthropics/claude-code)
@@ -17,18 +17,6 @@
 
 ---
 
-## At a glance
-
-**Problem:** Long coding sessions leave decisions, failed approaches, constraints, and next actions scattered across a conversation.
-
-**Workflow:** Run `/handoff`, review the generated Markdown file and clipboard text, then paste the summary into another session. Supply relevant source files and verify the working tree before continuing. Optional hooks add context monitoring and restoration assistance.
-
-**Evidence:** The repository contains the [skill definition](SKILL.md), [hook implementation](hooks/), an [illustrative format example](examples/example-handoff.md), and a [recorded project handoff from 2026-02-13](.claude/handoffs/handoff-20260213-084800-k7m2.md). The recorded handoff shows actual project usage, not an independently verified performance benchmark; its historical next steps are not current instructions.
-
-**Limits:** Summaries are lossy. This README does not establish measured compression, cost savings, better recall, instant resumption, or complete secret removal. Review output before clearing context, sharing, or acting on it.
-
-**Documentation history:** The [unchanged original README](docs/archive/README-before-product-ops-2026-09-21.md) preserves prior marketing claims for reference, not as current evidence. See the [archive index](docs/archive/README.md). The former Korean-guide URL is retained as an English navigation page; the original Korean guide is preserved in the archive.
-
 ## Quick Start
 
 ```bash
@@ -36,7 +24,7 @@ curl -o ~/.claude/commands/handoff.md \
   https://raw.githubusercontent.com/quantsquirrel/claude-handoff-baton/main/SKILL.md
 ```
 
-This installs the skill instructions. Use `/handoff` to prepare a context summary, then review it before resuming work.
+**Done.** Now you can use `/handoff` to save and resume context.
 
 <details>
 <summary>Optional: Power User Hooks (auto-monitoring, compaction snapshot, session restore)</summary>
@@ -46,7 +34,7 @@ git clone https://github.com/quantsquirrel/claude-handoff-baton.git ~/.claude/sk
 cd ~/.claude/skills/handoff && bash hooks/install.sh
 ```
 
-Adds automatic context monitoring, pre-compaction snapshots, and session restore. The `/handoff` skill can be used without these hooks; clipboard support and model behavior depend on your environment.
+Adds automatic context monitoring, pre-compaction snapshots, and session restore. The `/handoff` command works perfectly without these — hooks are a convenience layer for users who want automation.
 
 </details>
 
@@ -74,50 +62,73 @@ Re-run the curl command from Quick Start to download the latest version.
 
 ## What is Handoff Baton?
 
-Handoff Baton asks a coding assistant to turn a session into a structured Markdown handoff: what happened, why decisions were made, what failed, and what to do next. It complements the coding tool's native session-resume features rather than replacing their transcript or workspace state.
+**`--continue` restores conversations. Handoff passes a baton — distilled, structured, ready to run.**
 
-| Native session resume | Handoff Baton |
-|-----------------------|---------------|
-| Continues a conversation using the tool's available session state | Produces a portable, editable summary |
-| Retains detail according to the tool's resume and compaction behavior | Selects decisions, constraints, failures, and next steps |
-| Depends on the tool's session-storage and access options | Markdown can be shared where access and data policy permit |
-| Useful when original detail matters | Useful for reviewed checkpoints and transfers between sessions |
+| `--continue` (Raw History) | Handoff Baton (Distilled Knowledge) |
+|---------------------------|-------------------------------|
+| Loads entire message history (100K+ tokens) | Extracts essence in 100-500 tokens |
+| Replays tool calls, file reads, errors | Captures decisions, failures, and next steps |
+| Same session, same machine only | Clipboard: any session, any device, any AI |
+| Doesn't highlight what failed | Explicitly tracks failed approaches |
+| No prioritization of information | Smart auto-scaling for your needs |
 
-Neither path guarantees that every important detail reaches the next model call.
-
----
-
-## Token Arithmetic, Not a Benchmark
-
-A shorter handoff can reduce the amount of context you choose to resend, even when large context windows are available. The following is **hypothetical arithmetic**, not observed compression, speed, cost, or quality results:
-
-| Assumed history | Assumed summary | Token-count ratio |
-|-----------------|-----------------|-------------------|
-| 100,000 tokens | 500 tokens | 100,000 / 500 = 200 |
-| 100,000 tokens | 100 tokens | 100,000 / 100 = 1,000 |
-
-In shorthand: **100k/500=200; 100k/100=1000**. These ratios compare only the assumed text lengths. Actual output length varies, and creating a summary also consumes input and output tokens. Follow-up source reads can add further context.
-
-**Cost is not the same as token ratio.** It depends on the selected model's prices, cached versus uncached input, input/output pricing, the cost of generating the handoff, and what is actually resent on each resume. No specific observed dollar savings or fixed cost multiplier is claimed here.
-
-### Recall and latency
-
-[Lost in the Middle](https://arxiv.org/abs/2307.03172) is related research on long-context use, not a benchmark of this project. It does not establish that this handoff format has better recall than a full transcript. Summarization can omit crucial details; preserve links to source evidence and review constraints.
-
-A smaller prompt may reduce processing work, but latency also depends on the model, caching, tools, network, and service load. Resumption is not guaranteed to be instant or faster.
-
-### Reviewable checkpoints
-
-Markdown files can be searched, diffed, and reviewed if you choose to track them in Git. They are not automatically complete audit trails. Review for sensitive information before adding them to version control.
+**One command. One baton. 500x compression.**
 
 ---
 
-## When to Use a Handoff
+## Why Handoff Survives the 1M-Token Era
 
-- Use native resume when you need the existing conversation and its available detail.
-- Use a handoff when you want a compact checkpoint or need to transfer selected context.
-- Keep access to the original transcript and relevant files when omissions would matter.
-- Treat a pasted handoff as prior-session reference, not proof of current repository state or authorization to execute tasks.
+"With 1M-token context windows, why bother distilling anything?"
+
+Because **bigger context makes handoff more valuable, not less.**
+
+### The Cost Math
+
+| Approach | Tokens Sent | Cost per Resume | 100 Resumes |
+|----------|-------------|-----------------|-------------|
+| Dump full history into 1M context | ~100K tokens | **~$10** | **~$1,000** |
+| Handoff baton | ~500 tokens | **~$0.01** | **~$1** |
+
+That is a **1,000x cost difference.** Every resume without handoff burns budget on tool outputs, dead ends, and file contents the model already forgot how to use.
+
+### Bigger Context, Worse Recall
+
+Stanford's ["Lost in the Middle"](https://arxiv.org/abs/2307.03172) research found that LLM accuracy **drops 15-47%** as context grows beyond 10K tokens. Information buried in the middle of a long conversation is functionally invisible.
+
+**A well-structured 500-token handoff outperforms a 100K-token raw dump** because every token carries signal, not noise.
+
+### Speed
+
+Long context = slow inference. A 100K-token prompt takes meaningfully longer to process than a 500-token handoff. Your next session starts **instantly** instead of waiting for the model to wade through yesterday's debug logs.
+
+### Auditability
+
+Information buried in a 1M-token conversation is unsearchable, untrackable, and invisible to your team. Handoff files are **Git-native artifacts** — diffable, reviewable, and part of your project history.
+
+### The Checkpoint Effect
+
+The act of creating a handoff forces you to answer: *"What did I actually accomplish? What failed? What's next?"* This is not overhead — it is the same discipline that makes senior engineers effective. **The best developers don't just remember. They record.**
+
+---
+
+## Why Not Just `--continue`?
+
+`claude --continue` is great for short breaks. But it has limits:
+
+- **Token bloat**: Restores *everything* — tool outputs, file contents, dead ends. Your 200K context fills fast.
+- **No knowledge extraction**: Raw history doesn't highlight what matters. Failed approaches hide in noise.
+- **Single-tool lock-in**: Only works within Claude Code. Can't share context with Claude.ai, teammates, or other AIs.
+- **Reliability**: [Session resume bugs](https://github.com/anthropics/claude-code/issues/22107) can lose context silently.
+
+**Handoff complements `--continue`:**
+
+| Situation | Best Tool |
+|-----------|-----------|
+| Short break (< 30 min) | `claude --continue` |
+| Long break (2+ hours) | `/handoff` → Cmd+V |
+| Switching devices | `/handoff` → Cmd+V |
+| Sharing context with team | `/handoff` |
+| Context at 70%+ | `/handoff` |
 
 ---
 
@@ -126,10 +137,9 @@ Markdown files can be searched, diffed, and reviewed if you choose to track them
 ### Workflow
 
 ```
-1. /handoff          → Generate a file and attempt clipboard copy
-2. Review and save   → Check constraints, omissions, and sensitive data
-3. /clear           → Start fresh only when ready
-4. Cmd+V (paste)     → Supply the summary and recheck relevant sources
+1. /handoff          → Context saved to clipboard
+2. /clear            → Start fresh session
+3. Cmd+V (paste)     → Resume with full context
 ```
 
 ### Commands
@@ -151,7 +161,7 @@ Markdown files can be searched, diffed, and reviewed if you choose to track them
 
 ## Smart Auto-Scaling (v2.3 — L1/L2/L3)
 
-The [skill](SKILL.md) asks the model to choose output depth based on session complexity. These are prompt targets, not measured or enforced output lengths:
+Output depth adjusts automatically based on session complexity:
 
 | Level | Budget | Trigger | Sections |
 |-------|--------|---------|----------|
@@ -159,13 +169,13 @@ The [skill](SKILL.md) asks the model to choose output depth based on session com
 | **L2** | ~300 tokens | 10-50 messages OR 2-10 files modified | L1 + User Requests, Key Decisions, Failed Approaches, Files Modified |
 | **L3** | ~500 tokens | 50+ messages OR 10+ files modified | Full template (all sections) |
 
-When message count and file count suggest different levels, the **higher** level wins. Actual length and completeness depend on model output. The optional [hook configuration](hooks/config.json) separately uses 150/400/700-token budgets, so the skill and hook budgets are not identical.
+When message count and file count suggest different levels, the **higher** level wins. No manual level selection needed — just run `/handoff`.
 
 ---
 
 ## Context Fidelity (v2.3)
 
-The skill requests the following fidelity-oriented behavior; these instructions are not guarantees of completeness or exact reproduction:
+v2.3 preserves the original context more faithfully:
 
 | Feature | Description |
 |---------|-------------|
@@ -185,7 +195,7 @@ If none: `"No significant work in this session. Handoff skipped."`
 
 ### User Requests Section
 
-The skill asks for verbatim user requests. Check the result against the source conversation:
+Original user requests are captured verbatim — not paraphrased:
 
 ```markdown
 ## User Requests
@@ -195,7 +205,7 @@ The skill asks for verbatim user requests. Check the result against the source c
 
 ### Constraints Section
 
-The full-detail template asks for user-stated constraints as spoken; confirm that important constraints were included correctly:
+User-stated constraints are preserved exactly as spoken (full-detail sessions only):
 
 ```markdown
 ## Constraints
@@ -221,7 +231,7 @@ Session 1 → /handoff → Cmd+V → Session 2
 
 ## What Gets Saved
 
-The handoff template requests these sections, scaled to session complexity:
+Handoff captures what matters, scaled to session complexity:
 
 - **Summary** — What happened in 1-3 sentences
 - **User Requests** — Original requests verbatim (v2.3)
@@ -243,7 +253,7 @@ Handoff now intelligently detects task complexity and adjusts handoff timing acc
 ### How It Works
 
 1. **Prompt Analysis**
-   - Scans your request for keywords such as "migrate" and "entire", plus their Korean equivalents
+   - Scans your request for keywords like "전체", "리팩토링", "migrate", "entire"
    - Classifies task as Small / Medium / Large / XLarge
 
 2. **File Count Detection**
@@ -252,7 +262,7 @@ Handoff now intelligently detects task complexity and adjusts handoff timing acc
 
 3. **Dynamic Thresholds**
    - Suggests handoff earlier for complex tasks
-   - Aims to reduce overflow risk; does not guarantee prevention
+   - Prevents context overflow on large refactors
 
 ### Example
 
@@ -268,7 +278,7 @@ This means you'll be prompted to create a handoff earlier, reducing the risk of 
 
 ## Security
 
-The skill requests redaction, and hooks include pattern-based masking for some sensitive strings. These measures can miss secrets and personal data or mask harmless text. They are not a security boundary or a guarantee of complete removal. Illustrative intended transformations:
+Sensitive data is auto-detected and redacted:
 
 ```
 API_KEY=sk-1234...  → API_KEY=***REDACTED***
@@ -276,19 +286,19 @@ PASSWORD=secret     → PASSWORD=***REDACTED***
 Authorization: Bearer eyJ...  → Authorization: Bearer ***REDACTED***
 ```
 
-**Patterns target categories such as:**
+**Detection includes:**
 - API keys and secrets
 - JWT tokens and Base64-encoded credentials
 - Bearer tokens in Authorization headers
 - Environment variables with sensitive patterns
 
-**Review before sharing:** Inspect both the saved file and clipboard output. Do not paste credentials or unauthorized personal data into another model or service. Local Markdown storage does not imply local-only model processing; provider/data-routing rules still apply. Decide retention and Git tracking deliberately. These features do not establish GDPR compliance.
+**GDPR Consideration:** Handoff documents may contain personal data. Review handoffs before sharing with third parties and delete old handoffs regularly.
 
 ---
 
-## Reference-Only Wrapper
+## Auto-Execution Prevention
 
-The clipboard format requests reference-only handling. This is a model instruction, not an execution sandbox or authorization control; the receiving assistant may not follow it:
+The clipboard format includes safeguards to prevent Claude from auto-executing tasks:
 
 ```
 <previous_session context="reference_only" auto_execute="false">
@@ -301,7 +311,7 @@ Do not auto-execute anything below. Wait for user instructions.
 
 ## Optional: Auto-Handoff Hooks (v2.4)
 
-**Introduced in v2.4:** Snapshot and restoration assistance around compaction, plus shared token tracking. This does not preserve every detail.
+**New in v2.4:** Context preservation across compaction + unified token tracking!
 
 ### 4 Hooks Overview
 
